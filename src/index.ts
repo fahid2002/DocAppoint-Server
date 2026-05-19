@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import cookieParser from "cookie-parser"; // ✅ added
+import cookieParser from "cookie-parser";
 import { connectDB } from "./config/db";
 import authRoutes from "./routes/auth";
 import appointmentRoutes from "./routes/appointments";
@@ -11,14 +11,16 @@ import appointmentRoutes from "./routes/appointments";
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+app.set("trust proxy", 1);
+
 // CORS config (reused for preflight too)
 const corsOptions = {
   origin: [
     process.env.CLIENT_URL || "http://localhost:3000",
     "http://localhost:3000",
-    "https://doc-appoint-client.vercel.app", // ✅ added your Vercel URL
+    "https://doc-appoint-client.vercel.app",
   ],
-  credentials: true, // ✅ required for cross-domain cookies
+  credentials: true,
   methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
@@ -27,10 +29,10 @@ const corsOptions = {
 app.use(helmet());
 app.use(cors(corsOptions));
 
-// ✅ Handle preflight with same corsOptions (not plain cors())
+// Handle preflight with same corsOptions
 app.options("*", cors(corsOptions));
 
-// ✅ Cookie parser — must be before routes
+// Cookie parser — must be before routes
 app.use(cookieParser());
 
 // Rate limiting
