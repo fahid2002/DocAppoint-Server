@@ -10,19 +10,25 @@ import appointmentRoutes from "./routes/appointments";
 import reviewRoutes from "./routes/reviews";
 import doctorRoutes from "./routes/doctors";
 
-
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.set("trust proxy", 1);
 
-// CORS config (reused for preflight too)
-const corsOptions = {
-  origin: [
-    process.env.CLIENT_URL || "http://localhost:3000",
-    "http://localhost:3000",
-    "https://doc-appoint-client.vercel.app",
-  ],
+const corsOptions: cors.CorsOptions = {
+  origin: (origin, callback) => {
+    const allowed = [
+      "http://localhost:3000",
+      "https://doc-appoint-client.vercel.app",
+      process.env.CLIENT_URL,
+    ].filter(Boolean);
+
+    if (!origin || allowed.includes(origin) || origin.endsWith(".vercel.app")) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
   methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -31,14 +37,10 @@ const corsOptions = {
 // Security
 app.use(helmet());
 app.use(cors(corsOptions));
-
-// Handle preflight with same corsOptions
 app.options("*", cors(corsOptions));
 
-// Cookie parser — must be before routes
 app.use(cookieParser());
 
-// Rate limiting
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 200,
@@ -47,23 +49,19 @@ app.use(rateLimit({
 
 app.use(express.json());
 
-// Health check
 app.get("/", (_req, res) => {
   res.json({ status: "ok", message: "DocAppoint API running 🚀" });
 });
 
-// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/doctors", doctorRoutes);
 
-// 404
 app.use((_req, res) => {
   res.status(404).json({ error: "Route not found" });
 });
 
-// Start
 connectDB().then(() => {
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
