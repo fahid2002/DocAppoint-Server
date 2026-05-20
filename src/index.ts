@@ -8,6 +8,8 @@ import { connectDB } from "./config/db";
 import authRoutes from "./routes/auth";
 import appointmentRoutes from "./routes/appointments";
 import reviewRoutes from "./routes/reviews";
+import doctorRoutes from "./routes/doctors";
+
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -54,6 +56,7 @@ app.get("/", (_req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/doctors", doctorRoutes);
 
 // 404
 app.use((_req, res) => {
