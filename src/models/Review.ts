@@ -24,4 +24,4 @@ const ReviewSchema = new Schema<IReview>(
 // One review per user per doctor
 ReviewSchema.index({ doctorId: 1, userEmail: 1 }, { unique: true });
 
-export const Review = mongoose.model<IReview>("Review", ReviewSchema);
+export const Review = (mongoose.models.Review as mongoose.Model<IReview>) || mongoose.model<IReview>("Review", ReviewSchema);
