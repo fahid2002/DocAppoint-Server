@@ -8,7 +8,8 @@ router.get("/", async (_req, res) => {
   try {
     const doctors = await Doctor.find({});
     res.json(doctors);
-  } catch {
+  } catch (err) {
+    console.error("❌ Doctors fetch error:", err);
     res.status(500).json({ error: "Failed to fetch doctors" });
   }
 });
@@ -19,7 +20,8 @@ router.get("/:id", async (req, res) => {
     const doctor = await Doctor.findOne({ id: req.params.id });
     if (!doctor) { res.status(404).json({ error: "Doctor not found" }); return; }
     res.json(doctor);
-  } catch {
+  } catch (err) {
+    console.error("❌ Doctor by id error:", err);
     res.status(500).json({ error: "Failed to fetch doctor" });
   }
 });
